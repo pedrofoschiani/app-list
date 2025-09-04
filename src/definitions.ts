@@ -1,3 +1,3 @@
 export interface AppListPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
+  getInstalledApps(): Promise<{ apps: { name: string; packageName: string }[] }>;
 }
