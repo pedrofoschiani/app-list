@@ -11,9 +11,23 @@ npx cap sync
 
 ## API
 
-<docgen-index></docgen-index>
+<docgen-index>
+
+* [`getInstalledApps()`](#getinstalledapps)
+
+</docgen-index>
 
 <docgen-api>
-<!-- run docgen to generate docs from the source -->
-<!-- More info: https://github.com/ionic-team/capacitor-docgen -->
+<!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
+
+### getInstalledApps()
+
+```typescript
+getInstalledApps() => Promise<{ apps: { name: string; packageName: string; }[]; }>
+```
+
+**Returns:** <code>Promise&lt;{ apps: { name: string; packageName: string; }[]; }&gt;</code>
+
+--------------------
+
 </docgen-api>
