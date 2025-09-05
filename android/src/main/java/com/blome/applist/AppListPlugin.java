@@ -2,18 +2,16 @@ package com.blome.applist;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo; // Novo import
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.AdaptiveIconDrawable; 
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build; 
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi; 
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -34,15 +32,18 @@ public class AppListPlugin extends Plugin {
         PackageManager pm = getContext().getPackageManager();
         JSArray result = new JSArray();
 
-        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        final List<ResolveInfo> installedApps = pm.queryIntentActivities(mainIntent, 0);
+        List<PackageInfo> installedPackages = pm.getInstalledPackages(PackageManager.GET_META_DATA);
 
-        for (ResolveInfo ri : installedApps) {
-            ApplicationInfo appInfo = ri.activityInfo.applicationInfo;
+        for (PackageInfo pi : installedPackages) {
+            ApplicationInfo appInfo = pi.applicationInfo;
+            if (appInfo == null) {
+                continue; 
+            }
+
+            Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
             boolean isMyApp = myPackageName.equals(appInfo.packageName);
 
-            if (!isMyApp) {
+            if (launchIntent != null && !isMyApp) {
                 JSObject app = new JSObject();
                 app.put("name", appInfo.loadLabel(pm).toString());
                 app.put("packageName", appInfo.packageName);
@@ -78,19 +79,14 @@ public class AppListPlugin extends Plugin {
             AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) drawable;
             Drawable backgroundDr = adaptiveIcon.getBackground();
             Drawable foregroundDr = adaptiveIcon.getForeground();
-
             int width = adaptiveIcon.getIntrinsicWidth();
             int height = adaptiveIcon.getIntrinsicHeight();
-
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
-
             backgroundDr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             backgroundDr.draw(canvas);
-
             foregroundDr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             foregroundDr.draw(canvas);
-
             return bitmap;
         }
 
@@ -98,12 +94,10 @@ public class AppListPlugin extends Plugin {
         width = width > 0 ? width : 128;
         int height = drawable.getIntrinsicHeight();
         height = height > 0 ? height : 128;
-
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
-
         return bitmap;
     }
 }
