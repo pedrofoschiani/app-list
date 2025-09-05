@@ -41,6 +41,5 @@ getInstalledApps() => Promise<{ apps: AppInfo[]; }>
 | ----------------- | ------------------- |
 | **`name`**        | <code>string</code> |
 | **`packageName`** | <code>string</code> |
-| **`icon`**        | <code>string</code> |
 
 </docgen-api>
