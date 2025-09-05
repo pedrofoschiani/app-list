@@ -5,5 +5,4 @@ export interface AppListPlugin {
 export interface AppInfo {
   name: string;
   packageName: string;
-  icon?: string;
 }
