@@ -14,6 +14,7 @@ npx cap sync
 <docgen-index>
 
 * [`getInstalledApps()`](#getinstalledapps)
+* [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -23,11 +24,23 @@ npx cap sync
 ### getInstalledApps()
 
 ```typescript
-getInstalledApps() => Promise<{ apps: { name: string; packageName: string; }[]; }>
+getInstalledApps() => Promise<{ apps: AppInfo[]; }>
 ```
 
-**Returns:** <code>Promise&lt;{ apps: { name: string; packageName: string; }[]; }&gt;</code>
+**Returns:** <code>Promise&lt;{ apps: AppInfo[]; }&gt;</code>
 
 --------------------
+
+
+### Interfaces
+
+
+#### AppInfo
+
+| Prop              | Type                |
+| ----------------- | ------------------- |
+| **`name`**        | <code>string</code> |
+| **`packageName`** | <code>string</code> |
+| **`icon`**        | <code>string</code> |
 
 </docgen-api>
