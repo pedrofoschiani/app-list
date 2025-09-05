@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.getcapacitor.annotation.PluginMethod;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 
@@ -15,7 +14,6 @@ import java.util.List;
 @CapacitorPlugin(name = "AppList")
 public class AppListPlugin extends Plugin {
 
-    @PluginMethod
     public void getInstalledApps(PluginCall call) {
         PackageManager pm = getContext().getPackageManager();
         List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
