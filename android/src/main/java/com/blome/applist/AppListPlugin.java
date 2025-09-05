@@ -6,8 +6,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
 
@@ -26,7 +28,7 @@ import java.util.List;
 @CapacitorPlugin(name = "AppList")
 public class AppListPlugin extends Plugin {
     private static final String TAG = "AppListPlugin";
-    private static final boolean DEBUG_SAVE_BITMAPS = false;
+    private static final boolean DEBUG_SAVE_BITMAPS = false; 
 
     @PluginMethod
     public void getInstalledApps(PluginCall call) {
@@ -79,26 +81,46 @@ public class AppListPlugin extends Plugin {
 
     private Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable == null) {
-            return null; 
+            return null;
         }
 
         if (drawable instanceof BitmapDrawable) {
-            Bitmap bm = ((BitmapDrawable) drawable).getBitmap();
-            if (bm != null) {
-                if (bm.getConfig() != Bitmap.Config.ARGB_8888) {
-                    return bm.copy(Bitmap.Config.ARGB_8888, false);
-                }
-                return bm;
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            if (bitmap != null) {
+                return bitmap;
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable instanceof AdaptiveIconDrawable) {
+            AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) drawable;
+            Drawable backgroundDr = adaptiveIcon.getBackground();
+            Drawable foregroundDr = adaptiveIcon.getForeground();
 
-        final int dpSize = 72; 
-        float density = getContext().getResources().getDisplayMetrics().density;
-        final int defaultSize = Math.max(1, Math.round(dpSize * density));
+            int width = adaptiveIcon.getIntrinsicWidth();
+            int height = adaptiveIcon.getIntrinsicHeight();
+            if (width <= 0 || height <= 0) {
+                width = 192;
+                height = 192;
+            }
 
-        int width = drawable.getIntrinsicWidth() > 0 ? drawable.getIntrinsicWidth() : defaultSize;
-        int height = drawable.getIntrinsicHeight() > 0 ? drawable.getIntrinsicHeight() : defaultSize;
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+
+            backgroundDr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            backgroundDr.draw(canvas);
+
+            foregroundDr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            foregroundDr.draw(canvas);
+
+            return bitmap;
+        }
+
+        int width = drawable.getIntrinsicWidth();
+        int height = drawable.getIntrinsicHeight();
+        if (width <= 0 || height <= 0) {
+            width = 192; 
+            height = 192;
+        }
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
