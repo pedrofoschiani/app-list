@@ -3,6 +3,7 @@ package com.blome.applist;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -40,7 +41,18 @@ public class AppListPlugin extends Plugin {
                 app.put("packageName", appInfo.packageName);
 
                 try {
-                    Drawable iconDrawable = appInfo.loadIcon(pm);
+                    // --- NOVA LÓGICA DE CARREGAMENTO DE ÍCONE (MÉTODO DE BAIXO NÍVEL) ---
+                    Drawable iconDrawable;
+                    if (appInfo.icon != 0) { // Garante que o app tem um recurso de ícone definido
+                        // 1. Pega os recursos do outro aplicativo
+                        Resources resources = pm.getResourcesForApplication(appInfo.packageName);
+                        // 2. Puxa o ícone usando o ID do recurso diretamente
+                        iconDrawable = resources.getDrawable(appInfo.icon, null);
+                    } else {
+                        // Se o app não definir um ícone, usa o padrão do sistema como último caso
+                        iconDrawable = pm.getDefaultActivityIcon();
+                    }
+                    // --- FIM DA NOVA LÓGICA ---
 
                     Bitmap bitmap = drawableToBitmap(iconDrawable);
 
@@ -50,7 +62,7 @@ public class AppListPlugin extends Plugin {
 
                     app.put("icon", "data:image/png;base64," + base64Icon);
                 } catch (Exception e) {
-                    Log.e("AppListPlugin", "Erro ao converter ícone para: " + appInfo.packageName, e);
+                    Log.e("AppListPlugin", "Falha final ao processar ícone para: " + appInfo.packageName, e);
                 }
 
                 result.put(app);
