@@ -1,3 +1,9 @@
 export interface AppListPlugin {
-  getInstalledApps(): Promise<{ apps: { name: string; packageName: string }[] }>;
+  getInstalledApps(): Promise<{ apps: AppInfo[] }>;
+}
+
+export interface AppInfo {
+  name: string;
+  packageName: string;
+  icon?: string;
 }
