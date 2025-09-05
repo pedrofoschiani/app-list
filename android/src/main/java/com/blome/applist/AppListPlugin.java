@@ -3,13 +3,17 @@ package com.blome.applist;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo; 
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.AdaptiveIconDrawable; 
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build; 
 import android.util.Base64;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi; 
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -32,14 +36,13 @@ public class AppListPlugin extends Plugin {
 
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-
         final List<ResolveInfo> installedApps = pm.queryIntentActivities(mainIntent, 0);
 
         for (ResolveInfo ri : installedApps) {
             ApplicationInfo appInfo = ri.activityInfo.applicationInfo;
             boolean isMyApp = myPackageName.equals(appInfo.packageName);
 
-            if (!isMyApp) { 
+            if (!isMyApp) {
                 JSObject app = new JSObject();
                 app.put("name", appInfo.loadLabel(pm).toString());
                 app.put("packageName", appInfo.packageName);
@@ -69,6 +72,26 @@ public class AppListPlugin extends Plugin {
     private static Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable instanceof AdaptiveIconDrawable) {
+            AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) drawable;
+            Drawable backgroundDr = adaptiveIcon.getBackground();
+            Drawable foregroundDr = adaptiveIcon.getForeground();
+
+            int width = adaptiveIcon.getIntrinsicWidth();
+            int height = adaptiveIcon.getIntrinsicHeight();
+
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+
+            backgroundDr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            backgroundDr.draw(canvas);
+
+            foregroundDr.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            foregroundDr.draw(canvas);
+
+            return bitmap;
         }
 
         int width = drawable.getIntrinsicWidth();
