@@ -1,5 +1,4 @@
-import { WebPlugin } from '@capacitor/core';
-
+import { WebPlugin, registerPlugin } from '@capacitor/core';
 import type { AppInfo, AppListPlugin } from './definitions';
 
 export class AppListWeb extends WebPlugin implements AppListPlugin {
@@ -8,3 +7,6 @@ export class AppListWeb extends WebPlugin implements AppListPlugin {
     return { apps: [] };
   }
 }
+export const AppList = registerPlugin<AppListPlugin>('AppList', {
+  web: () => import('./web').then(m => new m.AppListWeb()),
+});
