@@ -3,7 +3,7 @@ package com.blome.applist;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
+import android.content.pm.ResolveInfo; 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -28,32 +28,24 @@ public class AppListPlugin extends Plugin {
     public void getInstalledApps(PluginCall call) {
         String myPackageName = getContext().getPackageName();
         PackageManager pm = getContext().getPackageManager();
-        List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
         JSArray result = new JSArray();
 
-        for (ApplicationInfo appInfo : apps) {
-            Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        final List<ResolveInfo> installedApps = pm.queryIntentActivities(mainIntent, 0);
+
+        for (ResolveInfo ri : installedApps) {
+            ApplicationInfo appInfo = ri.activityInfo.applicationInfo;
             boolean isMyApp = myPackageName.equals(appInfo.packageName);
 
-            if (launchIntent != null && !isMyApp) {
+            if (!isMyApp) { 
                 JSObject app = new JSObject();
-                app.put("name", pm.getApplicationLabel(appInfo).toString());
+                app.put("name", appInfo.loadLabel(pm).toString());
                 app.put("packageName", appInfo.packageName);
 
                 try {
-                    // --- NOVA LÓGICA DE CARREGAMENTO DE ÍCONE (MÉTODO DE BAIXO NÍVEL) ---
-                    Drawable iconDrawable;
-                    if (appInfo.icon != 0) { // Garante que o app tem um recurso de ícone definido
-                        // 1. Pega os recursos do outro aplicativo
-                        Resources resources = pm.getResourcesForApplication(appInfo.packageName);
-                        // 2. Puxa o ícone usando o ID do recurso diretamente
-                        iconDrawable = resources.getDrawable(appInfo.icon, null);
-                    } else {
-                        // Se o app não definir um ícone, usa o padrão do sistema como último caso
-                        iconDrawable = pm.getDefaultActivityIcon();
-                    }
-                    // --- FIM DA NOVA LÓGICA ---
-
+                    Drawable iconDrawable = appInfo.loadIcon(pm);
                     Bitmap bitmap = drawableToBitmap(iconDrawable);
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -62,7 +54,7 @@ public class AppListPlugin extends Plugin {
 
                     app.put("icon", "data:image/png;base64," + base64Icon);
                 } catch (Exception e) {
-                    Log.e("AppListPlugin", "Falha final ao processar ícone para: " + appInfo.packageName, e);
+                    Log.e("AppListPlugin", "Erro ao processar ícone para: " + appInfo.packageName, e);
                 }
 
                 result.put(app);
@@ -80,9 +72,9 @@ public class AppListPlugin extends Plugin {
         }
 
         int width = drawable.getIntrinsicWidth();
-        width = width > 0 ? width : 96;
+        width = width > 0 ? width : 128;
         int height = drawable.getIntrinsicHeight();
-        height = height > 0 ? height : 96;
+        height = height > 0 ? height : 128;
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
