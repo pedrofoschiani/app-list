@@ -34,7 +34,11 @@ public class AppListPlugin extends Plugin {
             Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
             boolean isMyApp = myPackageName.equals(appInfo.packageName);
 
-            if (launchIntent != null && !isMyApp) {
+
+            boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+            boolean isUpdatedSystemApp = (appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
+
+            if (launchIntent != null && !isMyApp && (!isSystemApp || isUpdatedSystemApp)) {
                 JSObject app = new JSObject();
                 app.put("name", appInfo.loadLabel(pm).toString());
                 app.put("packageName", appInfo.packageName);
