@@ -1,14 +1,20 @@
-export interface AppInfo {
-  name: string;
-  packageName: string;
-}
+import { registerPlugin } from '@capacitor/core';
 
 export interface AppListPlugin {
   getInstalledApps(): Promise<{ apps: AppInfo[] }>;
 }
 
-export interface BlockAppsPlugin {
-  setBlockedPackages(options: { packages: string[] }): Promise<void>;
+export interface AppInfo {
+  name: string;
+  packageName: string;
 }
 
-export interface BlomePlugin extends AppListPlugin, BlockAppsPlugin {}
+export interface BlockAppsPLugin {
+  setBlockedApps(options: { packageNames: string[] }): Promise<void>;
+}
+
+const AppList = registerPlugin<AppListPlugin>('AppList');
+export { AppList };
+
+const BlockApps = registerPlugin<BlockAppsPLugin>('BlockApps');
+export { BlockApps };
