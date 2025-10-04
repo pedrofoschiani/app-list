@@ -1,7 +1,9 @@
 import { registerPlugin } from '@capacitor/core';
-import type { AppListPlugin } from './definitions';
+import type { BlomePlugin } from './definitions';
 
-const AppList = registerPlugin<AppListPlugin>('AppList');
+const Blome = registerPlugin<BlomePlugin>('BlockApps', {
+  web: () => import('./web').then(m => new m.BlomeWeb()),
+});
 
 export * from './definitions';
-export { AppList };
+export { Blome };
