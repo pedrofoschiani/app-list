@@ -10,7 +10,7 @@ export interface AppInfo {
 }
 
 export interface BlockAppsPlugin {
-  setBlockedPackages(options: { packageNames: string[] }): Promise<void>;
+  setBlockedPackages(options: { packages: string[] }): Promise<void>;
 }
 
 const AppList = registerPlugin<AppListPlugin>('AppList');
