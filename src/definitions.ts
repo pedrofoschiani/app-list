@@ -13,8 +13,6 @@ export interface BlockAppsPlugin {
   setBlockedPackages(options: { packages: string[] }): Promise<void>;
 }
 
-const AppList = registerPlugin<AppListPlugin>('AppList');
-export { AppList };
+export const AppList = registerPlugin<AppListPlugin>('AppList');
 
-const BlockApps = registerPlugin<BlockAppsPlugin>('BlockApps');
-export { BlockApps };
+export const BlockApps = registerPlugin<BlockAppsPlugin>('BlockApps');
