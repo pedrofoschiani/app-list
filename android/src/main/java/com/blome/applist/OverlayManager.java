@@ -13,7 +13,7 @@ public class OverlayManager {
         this.context = context;
     }
 
-    public void showOverlay(string packageName) {
+    public void showOverlay(String packageName) {
         Log.d("OverlayManager", "Showing overlay" + packageName);
         // Implement overlay display logic here
     }
