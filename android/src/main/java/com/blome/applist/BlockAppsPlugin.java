@@ -39,7 +39,7 @@ public class BlockAppsPlugin extends Plugin {
 
             if (!packageList.isEmpty()) {
                 Log.d(TAG, "Chamando o OverlayManager para a lista de pacotes...");
-                ooverlayManager.showOverlay(packageList.get(0));
+                overlayManager.showOverlay(packageList.get(0));
                 
             } else {
                 overlayManager.hideOverlay();
