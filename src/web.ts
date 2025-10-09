@@ -12,6 +12,15 @@ export const AppList = registerPlugin<AppListPlugin>('AppList', {
 });
 
 export class BlockAppsWeb extends WebPlugin implements BlockAppsPlugin {
+  checkAndRequestPermissions(): Promise<{ overlay: boolean; usage: boolean; }> {
+    throw new Error('Method not implemented.');
+  }
+  startService(_options: { packages: string[]; }): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  stopService(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
   async setBlockedPackages(_options: { packages: string[]; }): Promise<void> {
     throw new Error('Method not implemented.');
   }
