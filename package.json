@@ -1,6 +1,6 @@
 {
   "name": "app-list",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Plugin para coletar o nome de todos os aplicativos instalados dentro do dispositivo, com exeção dos apps do sitema",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
