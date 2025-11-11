@@ -2,6 +2,7 @@ import { registerPlugin } from '@capacitor/core';
 
 export interface AppListPlugin {
   getInstalledApps(): Promise<{ apps: AppInfo[] }>;
+  setBlockedPackages(options: { packages: string[] }): Promise<void>;
 }
 
 export interface AppInfo {
@@ -9,10 +10,4 @@ export interface AppInfo {
   packageName: string;
 }
 
-export interface BlockAppsPlugin {
-  setBlockedPackages(options: { packages: string[] }): Promise<void>;
-}
-
 export const AppList = registerPlugin<AppListPlugin>('AppList');
-
-export const BlockApps = registerPlugin<BlockAppsPlugin>('BlockApps');

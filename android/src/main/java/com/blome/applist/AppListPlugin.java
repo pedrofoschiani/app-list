@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -23,6 +27,8 @@ import java.util.List;
 
 @CapacitorPlugin(name = "AppList")
 public class AppListPlugin extends Plugin {
+
+    public static Set<String> blockedPackages = new HashSet<>();
 
     @PluginMethod
     public void getInstalledApps(PluginCall call) {
@@ -64,6 +70,29 @@ public class AppListPlugin extends Plugin {
         JSObject ret = new JSObject();
         ret.put("apps", result);
         call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void setBlockedPackages(PluginCall call) {
+        try {
+            JSArray packages = call.getArray("packages");
+            if (packages == null) {
+                call.reject("Erro: array 'packages' não foi enviado.");
+                return;
+            }
+
+            blockedPackages.clear();
+            for (int i = 0; i < packages.length(); i++) {
+                blockedPackages.add(packages.getString(i));
+            }
+
+            Log.d("AppListPlugin", "Lista de apps bloqueados atualizada: " + blockedPackages.toString());
+            call.resolve();
+            
+        } catch (Exception e) {
+            Log.e("AppListPlugin", "Erro ao processar lista de pacotes", e);
+            call.reject("Erro nativo: " + e.getMessage());
+        }
     }
 
     private String drawableToBase64(Drawable drawable) {
