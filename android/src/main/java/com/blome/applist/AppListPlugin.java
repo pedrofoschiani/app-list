@@ -12,6 +12,13 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+
 import java.util.List;
 
 @CapacitorPlugin(name = "AppList")
@@ -42,6 +49,14 @@ public class AppListPlugin extends Plugin {
                 JSObject app = new JSObject();
                 app.put("name", appInfo.loadLabel(pm).toString());
                 app.put("packageName", appInfo.packageName);
+
+                try {
+                    Drawable iconDrawable = appInfo.loadIcon(pm);
+                    String encodedIcon = drawableToBase64(iconDrawable);
+                    app.put("icon", encodedIcon);
+                } catch (Exception e) {
+                }
+
                 result.put(app);
             }
         }
@@ -49,5 +64,27 @@ public class AppListPlugin extends Plugin {
         JSObject ret = new JSObject();
         ret.put("apps", result);
         call.resolve(ret);
+    }
+
+    private String drawableToBase64(Drawable drawable) {
+        Bitmap bitmap;
+        if (drawable instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) drawable).getBitmap();
+        } else {
+            int width = drawable.getIntrinsicWidth();
+            width = width > 0 ? width : 96;
+            int height = drawable.getIntrinsicHeight();
+            height = height > 0 ? height : 96;
+
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        byte[] byteArray = outputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP);
     }
 }
