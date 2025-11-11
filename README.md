@@ -14,6 +14,7 @@ npx cap sync
 <docgen-index>
 
 * [`getInstalledApps()`](#getinstalledapps)
+* [`setBlockedPackages(...)`](#setblockedpackages)
 * [Interfaces](#interfaces)
 
 </docgen-index>
@@ -28,6 +29,19 @@ getInstalledApps() => Promise<{ apps: AppInfo[]; }>
 ```
 
 **Returns:** <code>Promise&lt;{ apps: AppInfo[]; }&gt;</code>
+
+--------------------
+
+
+### setBlockedPackages(...)
+
+```typescript
+setBlockedPackages(options: { packages: string[]; }) => Promise<void>
+```
+
+| Param         | Type                                 |
+| ------------- | ------------------------------------ |
+| **`options`** | <code>{ packages: string[]; }</code> |
 
 --------------------
 
