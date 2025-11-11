@@ -2,7 +2,6 @@ package com.blome.applist;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -14,17 +13,26 @@ public class AppBlockerService extends AccessibilityService{
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             
-            if (event.getPackageName() == null) {
+            if (event.getPackageName() == null || event.getClassName() == null) {
                 return;
             }
 
             String packageName = event.getPackageName().toString();
+            String className = event.getClassName().toString();
 
-            if (packageName.equals(getPackageName()) || packageName.contains("launcher")) {
+            Log.d(TAG, "EVENTO: pkg=" + packageName + ", cls=" + className);
+
+            if (className.equals("io.ionic.starter.MainActivity") || packageName.contains("launcher")) {
+                Log.d(TAG, "App principal ou Launcher em foco, escondendo overlay.");
                 if (overlayManager != null) {
                     overlayManager.hideOverlay();
                 }
                 return;
+            }
+
+            if (packageName.equals(getPackageName())) {
+                Log.d(TAG, "Nosso overlay está em foco, não fazer nada.");
+                return; 
             }
 
             if (AppListPlugin.blockedPackages.contains(packageName)) {
@@ -53,7 +61,6 @@ public class AppBlockerService extends AccessibilityService{
         setServiceInfo(info);
 
         this.overlayManager = new OverlayManager(this);
-
         Log.d(TAG, "Serviço de Bloqueio de Apps conectado e rodando.");
     }
 
