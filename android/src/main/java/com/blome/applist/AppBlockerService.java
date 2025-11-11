@@ -36,6 +36,7 @@ public class AppBlockerService extends AccessibilityService{
 
             } else if (packageName.equals(getPackageName()) || packageName.equals("com.android.systemui")){
                 Log.d(TAG, "Ignorando SystemUI ou nosso próprio overlay.");
+                    overlayManager.hideOverlay();
 
             } else {
                 Log.d(TAG, "App permitido em foco: " + packageName + ", escondendo overlay.");
@@ -52,7 +53,7 @@ public class AppBlockerService extends AccessibilityService{
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        
+
         info.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS |
                      AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         setServiceInfo(info);
