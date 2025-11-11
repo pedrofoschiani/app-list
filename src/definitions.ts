@@ -4,6 +4,7 @@ export interface AppListPlugin {
   getInstalledApps(): Promise<{ apps: AppInfo[] }>;
   setBlockedPackages(options: { packages: string[] }): Promise<void>;
   openAccessibilitySettings(): Promise<void>;
+  isAccessibilityServiceEnabled(): Promise<{ enabled: boolean }>;
 }
 
 export interface AppInfo {

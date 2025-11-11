@@ -22,13 +22,53 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
 import java.io.ByteArrayOutputStream;
-
 import java.util.List;
+
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.content.ComponentName;
 
 @CapacitorPlugin(name = "AppList")
 public class AppListPlugin extends Plugin {
 
     public static Set<String> blockedPackages = new HashSet<>();
+
+    @PluginMethod
+    public void isAccessibilityServiceEnabled(PluginCall call) {
+        String serviceName = new ComponentName(getContext(), AppBlockerService.class).flattenToString();
+
+        String enabledServices;
+        try {
+            enabledServices = Settings.Secure.getString(
+                    getContext().getContentResolver(),
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            );
+        } catch (Exception e) {
+            Log.e("AppListPlugin", "Erro ao ler serviços de acessibilidade", e);
+            call.resolve(new JSObject().put("enabled", false));
+            return;
+        }
+
+        if (enabledServices == null) {
+            call.resolve(new JSObject().put("enabled", false));
+            return;
+        }
+
+        boolean isEnabled = false;
+        TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
+        splitter.setString(enabledServices);
+
+        while (splitter.hasNext()) {
+            if (splitter.next().equalsIgnoreCase(serviceName)) {
+                isEnabled = true;
+                break;
+            }
+        }
+
+        JSObject ret = new JSObject();
+        ret.put("enabled", isEnabled);
+        call.resolve(ret);
+    }
 
     @PluginMethod
     public void openAccessibilitySettings(PluginCall call) {
