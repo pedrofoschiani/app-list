@@ -27,26 +27,18 @@ public class AppBlockerService extends AccessibilityService{
                 if (overlayManager != null) {
                     overlayManager.hideOverlay();
                 }
-                return;
-            }
-
-            if (AppListPlugin.blockedPackages.contains(packageName)) {
-                Log.d(TAG, "APP BLOQUEADO! Tentando abrir: " + packageName);
-
+            } else if (AppListPlugin.blockedPackages.contains(packageName)) {
+                Log.d(TAG, "App bloqueado em foco: " + packageName + ", mostrando overlay.");
                 if (overlayManager != null) {
                     overlayManager.showOverlay(packageName);
                 }
-                return;
-            }
-
-            if (packageName.equals(getPackageName()) || packageName.equals("com.android.systemui")) {
-                Log.d(TAG, "Ignorando evento do SystemUI ou do nosso próprio overlay.");
-                return;
-            }
-
-            Log.d(TAG, "App permitido em primeiro plano: " + packageName);
-            if (overlayManager != null) {
-                overlayManager.hideOverlay();
+            } else if (packageName.equals(getPackageName()) || packageName.equals("com.android.systemui")){
+                Log.d(TAG, "Ignorando SystemUI ou nosso próprio overlay.");
+            } else {
+                Log.d(TAG, "App permitido em foco: " + packageName + ", escondendo overlay.");
+                if (overlayManager != null) {
+                    overlayManager.hideOverlay();
+                }
             }
         }
     }
