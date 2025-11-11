@@ -31,6 +31,13 @@ public class AppListPlugin extends Plugin {
     public static Set<String> blockedPackages = new HashSet<>();
 
     @PluginMethod
+    public void openAccessibilitySettings(PluginCall call) {
+        Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        getContext().startActivity(intent);
+        call.resolve();
+    }
+
+    @PluginMethod
     public void getInstalledApps(PluginCall call) {
         String myPackageName = getContext().getPackageName();
         PackageManager pm = getContext().getPackageManager();
@@ -88,7 +95,7 @@ public class AppListPlugin extends Plugin {
 
             Log.d("AppListPlugin", "Lista de apps bloqueados atualizada: " + blockedPackages.toString());
             call.resolve();
-            
+
         } catch (Exception e) {
             Log.e("AppListPlugin", "Erro ao processar lista de pacotes", e);
             call.reject("Erro nativo: " + e.getMessage());
