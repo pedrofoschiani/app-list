@@ -36,10 +36,11 @@ public class AppBlockerService extends AccessibilityService{
                 if (overlayManager != null) {
                     overlayManager.showOverlay(packageName);
                 }
-
+                return;
             }
 
             if (packageName.equals(getPackageName()) || packageName.equals("com.android.systemui")) {
+                Log.d(TAG, "Ignorando evento do SystemUI ou do nosso próprio overlay.");
                 return;
             }
 
@@ -56,7 +57,8 @@ public class AppBlockerService extends AccessibilityService{
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        info.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+        info.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS |
+                     AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         setServiceInfo(info);
 
         this.overlayManager = new OverlayManager(this);
