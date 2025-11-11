@@ -30,10 +30,9 @@ public class AppBlockerService extends AccessibilityService{
             if (AppListPlugin.blockedPackages.contains(packageName)) {
                 Log.d(TAG, "APP BLOQUEADO! Tentando abrir: " + packageName);
 
-                // TODO (próxima etapa): Chamar o overlay
-                // if (overlayManager != null) {
-                //     overlayManager.showOverlay(packageName);
-                // }
+                if (overlayManager != null) {
+                    overlayManager.showOverlay(packageName);
+                }
 
             } else {
                 Log.d(TAG, "App permitido em primeiro plano: " + packageName);
