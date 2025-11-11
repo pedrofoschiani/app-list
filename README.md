@@ -15,6 +15,7 @@ npx cap sync
 
 * [`getInstalledApps()`](#getinstalledapps)
 * [`setBlockedPackages(...)`](#setblockedpackages)
+* [`openAccessibilitySettings()`](#openaccessibilitysettings)
 * [Interfaces](#interfaces)
 
 </docgen-index>
@@ -42,6 +43,15 @@ setBlockedPackages(options: { packages: string[]; }) => Promise<void>
 | Param         | Type                                 |
 | ------------- | ------------------------------------ |
 | **`options`** | <code>{ packages: string[]; }</code> |
+
+--------------------
+
+
+### openAccessibilitySettings()
+
+```typescript
+openAccessibilitySettings() => Promise<void>
+```
 
 --------------------
 
