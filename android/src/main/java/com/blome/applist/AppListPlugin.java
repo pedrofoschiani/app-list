@@ -24,14 +24,42 @@ import android.util.Base64;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.content.ComponentName;
+import android.net.Uri;
 
 @CapacitorPlugin(name = "AppList")
 public class AppListPlugin extends Plugin {
 
     public static Set<String> blockedPackages = new HashSet<>();
+
+    @PluginMethod
+    public void canDrawOverlays(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            boolean isEnabled = Settings.canDrawOverlays(getContext());
+            JSObject ret = new JSObject();
+            ret.put("enabled", isEnabled);
+            call.resolve(ret);
+        } else {
+            JSObject ret = new JSObject();
+            ret.put("enabled", true);
+            call.resolve(ret);
+        }
+    }
+
+    @PluginMethod
+    public void openOverlaySettings(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + getContext().getPackageName()));
+            getBridge().getActivity().startActivity(intent);
+            call.resolve();
+        } else {
+            call.resolve();
+        }
+    }
 
     @PluginMethod
     public void isAccessibilityServiceEnabled(PluginCall call) {

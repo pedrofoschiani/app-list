@@ -5,6 +5,8 @@ export interface AppListPlugin {
   setBlockedPackages(options: { packages: string[] }): Promise<void>;
   openAccessibilitySettings(): Promise<void>;
   isAccessibilityServiceEnabled(): Promise<{ enabled: boolean }>;
+  canDrawOverlays(): Promise<{ enabled: boolean }>;
+  openOverlaySettings(): Promise<void>;
 }
 
 export interface AppInfo {
