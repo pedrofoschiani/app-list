@@ -4,10 +4,10 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.Toast; // <-- Adicione esta importação
 
 public class AppBlockerService extends AccessibilityService{
     private static final String TAG = "AppBlockerService";
-    private OverlayManager overlayManager;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -23,35 +23,23 @@ public class AppBlockerService extends AccessibilityService{
             Log.d(TAG, "EVENTO: pkg=" + packageName + ", cls=" + className);
 
             if (packageName.equals("com.android.systemui")) {
-                Log.d(TAG, "Ignorando SystemUI, mantendo estado atual do overlay.");
+                Log.d(TAG, "Ignorando SystemUI.");
                 return;
             }
 
             if (packageName.equals(getPackageName())) {
-                if (className.equals("io.ionic.starter.MainActivity")) { 
-                    Log.d(TAG, "Nosso app principal em foco, escondendo overlay.");
-                    if (overlayManager != null) {
-                        overlayManager.hideOverlay();
-                    }
-                } else {
-                    Log.d(TAG, "Ignorando evento do nosso próprio pacote (provavelmente o overlay): " + className);
-                    return; 
-                }
+                Log.d(TAG, "Ignorando nosso próprio app.");
                 return; 
             }
 
+
             if (AppListPlugin.blockedPackages.contains(packageName)) {
-                Log.d(TAG, "App bloqueado em foco: " + packageName + ", mostrando overlay.");
-                if (overlayManager != null) {
-                    overlayManager.showOverlay(packageName);
-                }
+                Log.d(TAG, "App bloqueado detectado: " + packageName + ". Retornando para Home.");
+                
+                Toast.makeText(this, "Este aplicativo está bloqueado.", Toast.LENGTH_SHORT).show();
+                
+                performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             } 
-            else {
-                Log.d(TAG, "App permitido ou Launcher em foco: " + packageName + ", escondendo overlay.");
-                if (overlayManager != null) {
-                    overlayManager.hideOverlay();
-                }
-            }
         }
     }
 
@@ -66,23 +54,16 @@ public class AppBlockerService extends AccessibilityService{
                      AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         setServiceInfo(info);
 
-        this.overlayManager = new OverlayManager(this);
-        Log.d(TAG, "Serviço de Bloqueio de Apps conectado e rodando.");
+        Log.d(TAG, "Serviço de Bloqueio de Apps (Modo Interceptação) conectado.");
     }
 
     @Override
     public void onInterrupt() {
-        if (overlayManager != null) {
-             overlayManager.hideOverlay();
-        }
         Log.e(TAG, "Serviço de Bloqueio de Apps interrompido.");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (overlayManager != null) {
-             overlayManager.hideOverlay();
-        }
     }
 }

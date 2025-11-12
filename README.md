@@ -17,8 +17,6 @@ npx cap sync
 * [`setBlockedPackages(...)`](#setblockedpackages)
 * [`openAccessibilitySettings()`](#openaccessibilitysettings)
 * [`isAccessibilityServiceEnabled()`](#isaccessibilityserviceenabled)
-* [`canDrawOverlays()`](#candrawoverlays)
-* [`openOverlaySettings()`](#openoverlaysettings)
 * [Interfaces](#interfaces)
 
 </docgen-index>
@@ -66,26 +64,6 @@ isAccessibilityServiceEnabled() => Promise<{ enabled: boolean; }>
 ```
 
 **Returns:** <code>Promise&lt;{ enabled: boolean; }&gt;</code>
-
---------------------
-
-
-### canDrawOverlays()
-
-```typescript
-canDrawOverlays() => Promise<{ enabled: boolean; }>
-```
-
-**Returns:** <code>Promise&lt;{ enabled: boolean; }&gt;</code>
-
---------------------
-
-
-### openOverlaySettings()
-
-```typescript
-openOverlaySettings() => Promise<void>
-```
 
 --------------------
 
