@@ -129,12 +129,14 @@ public class AppListPlugin extends Plugin {
     @PluginMethod
     public void setBlockedPackages(PluginCall call) {
         try {
-            JSArray packagesJS = call.getArray("packages");
+            // Pega o JSArray (tipo correto do Capacitor 5+)
+            JSArray packagesJS = call.getArray("packages"); 
+            
             if (packagesJS == null) {
                 call.reject("A lista 'packages' não pode ser nula.");
                 return;
             }
-            Set<String> packageSet = new HashSet<>(packages);
+                        Set<String> packageSet = new HashSet<>();
             for (int i = 0; i < packagesJS.length(); i++) {
                 packageSet.add(packagesJS.getString(i));
             }
