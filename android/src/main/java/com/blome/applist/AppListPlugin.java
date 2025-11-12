@@ -35,31 +35,8 @@ public class AppListPlugin extends Plugin {
 
     public static Set<String> blockedPackages = new HashSet<>();
 
-    @PluginMethod
-    public void canDrawOverlays(PluginCall call) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean isEnabled = Settings.canDrawOverlays(getContext());
-            JSObject ret = new JSObject();
-            ret.put("enabled", isEnabled);
-            call.resolve(ret);
-        } else {
-            JSObject ret = new JSObject();
-            ret.put("enabled", true);
-            call.resolve(ret);
-        }
-    }
-
-    @PluginMethod
-    public void openOverlaySettings(PluginCall call) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + getContext().getPackageName()));
-            getBridge().getActivity().startActivity(intent);
-            call.resolve();
-        } else {
-            call.resolve();
-        }
-    }
+    private static final String PREFS_NAME = "AppBlockerPrefs";
+    private static final String KEY_BLOCKED_PACKAGES = "blockedPackagesSet";
 
     @PluginMethod
     public void isAccessibilityServiceEnabled(PluginCall call) {
@@ -150,16 +127,12 @@ public class AppListPlugin extends Plugin {
     @PluginMethod
     public void setBlockedPackages(PluginCall call) {
         try {
-            JSArray packages = call.getArray("packages");
-            if (packages == null) {
-                call.reject("Erro: array 'packages' não foi enviado.");
-                return;
-            }
+            ArrayList<String> packages = call.getArray("packages", new ArrayList<String>());
+            Set<String> packageSet = new HashSet<>(packages);
+            
+            saveBlockedPackages(getContext(), packageSet);
 
-            blockedPackages.clear();
-            for (int i = 0; i < packages.length(); i++) {
-                blockedPackages.add(packages.getString(i));
-            }
+            blockedPackages = packageSet;
 
             Log.d("AppListPlugin", "Lista de apps bloqueados atualizada: " + blockedPackages.toString());
             call.resolve();
@@ -168,6 +141,21 @@ public class AppListPlugin extends Plugin {
             Log.e("AppListPlugin", "Erro ao processar lista de pacotes", e);
             call.reject("Erro nativo: " + e.getMessage());
         }
+    }
+
+    private static void saveBlockedPackages(Context context, Set<String> packages) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putStringSet(KEY_BLOCKED_PACKAGES, packages);
+        editor.apply();
+    }
+
+    public static void loadBlockedPackages(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        Set<String> savedPackages = prefs.getStringSet(KEY_BLOCKED_PACKAGES, new HashSet<String>());
+        
+        blockedPackages = savedPackages;
+        Log.d("AppListPlugin", "Lista de bloqueio carregada do disco. " + blockedPackages.size() + " apps.");
     }
 
     private String drawableToBase64(Drawable drawable) {
