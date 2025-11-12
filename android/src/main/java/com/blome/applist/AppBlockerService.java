@@ -27,20 +27,26 @@ public class AppBlockerService extends AccessibilityService{
                 return;
             }
 
-            if (AppListPlugin.blockedPackages.contains(packageName)) {
-                
-                if (packageName.equals(getPackageName()) || className.equals("io.ionic.starter.MainActivity")) {
-                     Log.d(TAG, "Nosso app principal em foco, escondendo overlay.");
-                     if (overlayManager != null) {
-                         overlayManager.hideOverlay();
-                     }
-                } else {
-                    Log.d(TAG, "App bloqueado em foco: " + packageName + ", mostrando overlay.");
+            if (packageName.equals(getPackageName())) {
+                if (className.equals("io.ionic.starter.MainActivity")) { 
+                    Log.d(TAG, "Nosso app principal em foco, escondendo overlay.");
                     if (overlayManager != null) {
-                        overlayManager.showOverlay(packageName);
+                        overlayManager.hideOverlay();
                     }
-                } 
-            } else {
+                } else {
+                    Log.d(TAG, "Ignorando evento do nosso próprio pacote (provavelmente o overlay): " + className);
+                    return; 
+                }
+                return; 
+            }
+
+            if (AppListPlugin.blockedPackages.contains(packageName)) {
+                Log.d(TAG, "App bloqueado em foco: " + packageName + ", mostrando overlay.");
+                if (overlayManager != null) {
+                    overlayManager.showOverlay(packageName);
+                }
+            } 
+            else {
                 Log.d(TAG, "App permitido ou Launcher em foco: " + packageName + ", escondendo overlay.");
                 if (overlayManager != null) {
                     overlayManager.hideOverlay();
