@@ -1,6 +1,7 @@
 package com.blome.applist;
 
 import android.content.Intent;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;

@@ -86,7 +86,7 @@ public class AppBlockerService extends AccessibilityService{
     }
 
     private Notification buildNotification() {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
@@ -107,7 +107,6 @@ public class AppBlockerService extends AccessibilityService{
 
     @Override
     public void onInterrupt() {
-        super.onInterrupt();
         if (notificationManager != null) {
             notificationManager.cancel(NOTIFICATION_ID);
         }
