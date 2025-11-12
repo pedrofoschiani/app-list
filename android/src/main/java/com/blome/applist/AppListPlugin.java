@@ -9,7 +9,6 @@ import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.ArrayList;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -31,6 +30,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.content.ComponentName;
 import android.net.Uri;
+import android.content.SharedPreferences;
 
 @CapacitorPlugin(name = "AppList")
 public class AppListPlugin extends Plugin {
@@ -129,8 +129,15 @@ public class AppListPlugin extends Plugin {
     @PluginMethod
     public void setBlockedPackages(PluginCall call) {
         try {
-            ArrayList<String> packages = call.getArray("packages", new ArrayList<String>());
+            JSArray packagesJS = call.getArray("packages");
+            if (packagesJS == null) {
+                call.reject("A lista 'packages' não pode ser nula.");
+                return;
+            }
             Set<String> packageSet = new HashSet<>(packages);
+            for (int i = 0; i < packagesJS.length(); i++) {
+                packageSet.add(packagesJS.getString(i));
+            }
             
             saveBlockedPackages(getContext(), packageSet);
 
