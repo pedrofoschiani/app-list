@@ -22,24 +22,26 @@ public class AppBlockerService extends AccessibilityService{
 
             Log.d(TAG, "EVENTO: pkg=" + packageName + ", cls=" + className);
 
-            if (className.equals("io.ionic.starter.MainActivity") || packageName.contains("launcher")) {
-                Log.d(TAG, "App principal ou Launcher em foco, escondendo overlay.");
-                if (overlayManager != null) {
-                    overlayManager.hideOverlay();
-                }
+            if (packageName.equals("com.android.systemui")) {
+                Log.d(TAG, "Ignorando SystemUI, mantendo estado atual do overlay.");
+                return;
+            }
 
-            } else if (AppListPlugin.blockedPackages.contains(packageName)) {
-                Log.d(TAG, "App bloqueado em foco: " + packageName + ", mostrando overlay.");
-                if (overlayManager != null) {
-                    overlayManager.showOverlay(packageName);
-                }
-
-            } else if (packageName.equals(getPackageName()) || packageName.equals("com.android.systemui")){
-                Log.d(TAG, "Ignorando SystemUI ou nosso próprio overlay.");
-                    overlayManager.hideOverlay();
-
+            if (AppListPlugin.blockedPackages.contains(packageName)) {
+                
+                if (packageName.equals(getPackageName()) || className.equals("io.ionic.starter.MainActivity")) {
+                     Log.d(TAG, "Nosso app principal em foco, escondendo overlay.");
+                     if (overlayManager != null) {
+                         overlayManager.hideOverlay();
+                     }
+                } else {
+                    Log.d(TAG, "App bloqueado em foco: " + packageName + ", mostrando overlay.");
+                    if (overlayManager != null) {
+                        overlayManager.showOverlay(packageName);
+                    }
+                } 
             } else {
-                Log.d(TAG, "App permitido em foco: " + packageName + ", escondendo overlay.");
+                Log.d(TAG, "App permitido ou Launcher em foco: " + packageName + ", escondendo overlay.");
                 if (overlayManager != null) {
                     overlayManager.hideOverlay();
                 }
@@ -64,6 +66,17 @@ public class AppBlockerService extends AccessibilityService{
 
     @Override
     public void onInterrupt() {
+        if (overlayManager != null) {
+             overlayManager.hideOverlay();
+        }
         Log.e(TAG, "Serviço de Bloqueio de Apps interrompido.");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (overlayManager != null) {
+             overlayManager.hideOverlay();
+        }
     }
 }

@@ -4,13 +4,22 @@
     android:layout_height="match_parent"
     android:background="#CC000000"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="24dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Este aplicativo está bloqueado."
         android:textColor="@android:color/white"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:gravity="center_horizontal" />
+    
+    <Button
+        android:id="@+id/btn_exit_app"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voltar para a Tela Inicial"
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>
