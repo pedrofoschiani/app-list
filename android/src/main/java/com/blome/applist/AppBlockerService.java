@@ -52,21 +52,4 @@ public class AppBlockerService extends AccessibilityService{
 
         Log.d(TAG, "Serviço de Bloqueio de Apps (Modo Interceptação) conectado.");
     }
-
-    @Override
-    public void onInterrupt() {
-        if (notificationManager != null) {
-            notificationManager.cancel(NOTIFICATION_ID);
-        }
-        Log.e(TAG, "Serviço de Bloqueio de Apps interrompido.");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (notificationManager != null) {
-            notificationManager.cancel(NOTIFICATION_ID);
-        }
-        Log.d(TAG, "Serviço de Bloqueio de Apps destruído.");
-    }
 }
