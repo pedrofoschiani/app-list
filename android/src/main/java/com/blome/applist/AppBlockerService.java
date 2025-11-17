@@ -38,6 +38,11 @@ public class AppBlockerService extends AccessibilityService{
     }
 
     @Override
+    public void onInterrupt() {
+        Log.w(TAG, "Serviço de acessibilidade interrompido.");
+    }
+
+    @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
