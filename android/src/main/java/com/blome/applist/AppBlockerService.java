@@ -5,12 +5,10 @@ import android.accessibilityservice.AccessibilityServiceInfo;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
-// --- NOVAS IMPORTAÇÕES ---
 import android.content.Context;
 import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Set;
-// --- FIM DAS NOVAS IMPORTAÇÕES ---
 
 public class AppBlockerService extends AccessibilityService{
     private static final String TAG = "AppBlockerService";
@@ -20,8 +18,34 @@ public class AppBlockerService extends AccessibilityService{
     private static final String KEY_BLOCKED_PACKAGES = "blockedPackagesSet";
     private Set<String> localBlockedPackages = new HashSet<>(); // Cache local
 
+    private SharedPreferences.OnSharedPreferenceChangeListener prefsListener;
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+
+        try {
+            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                
+                if (event.getPackageName() == null) return;
+
+                String packageName = event.getPackageName().toString();
+
+                // Filtros básicos de performance
+                if (packageName.equals("com.android.systemui") || packageName.equals(getPackageName())) {
+                    return;
+                }
+
+                // Verifica no cache local
+                if (this.localBlockedPackages.contains(packageName)) {
+                    Log.d(TAG, "BLOQUEANDO: " + packageName);
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+                } 
+            }
+        } catch (Exception e) {
+            // Isso impede que o serviço morra silenciosamente se algo der errado
+            Log.e(TAG, "Erro fatal no loop de acessibilidade", e);
+        }
+        
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             
             if (event.getPackageName() == null || event.getClassName() == null) {
@@ -60,26 +84,47 @@ public class AppBlockerService extends AccessibilityService{
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
 
+        info.packageNames = null;
+
         info.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS |
                      AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         setServiceInfo(info);
+        etupLiveUpdates();
 
-        // --- LÓGICA DE CARREGAMENTO ATUALIZADA ---
-        // Em vez de chamar o AppListPlugin, o serviço lê o disco DIRETAMENTE
-        // e salva em sua própria variável local.
         loadBlockedPackagesFromPrefs();
-        // --- FIM DA ATUALIZAÇÃO ---
 
         Log.d(TAG, "Serviço de Bloqueio (PROCESSO SEPARADO) conectado. " + this.localBlockedPackages.size() + " apps na lista.");
     }
 
-    /**
-     * Novo método privado para ler o SharedPreferences diretamente.
-     */
+    private void setupLiveUpdates() {
+        try {
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            
+            // Criamos o listener
+            prefsListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                    if (KEY_BLOCKED_PACKAGES.equals(key)) {
+                        Log.d(TAG, "Detectada alteração na lista de bloqueio. Atualizando serviço...");
+                        loadBlockedPackagesFromPrefs();
+                    }
+                }
+            };
+
+            // Registramos o listener
+            prefs.registerOnSharedPreferenceChangeListener(prefsListener);
+            Log.d(TAG, "Listener de atualizações em tempo real registrado com sucesso.");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Erro ao configurar listener: " + e.getMessage());
+        }
+    }
+    
     private void loadBlockedPackagesFromPrefs() {
         try {
             // Usamos 'this' (que é o Contexto do Serviço)
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            Set<String> savedSet = prefs.getStringSet(KEY_BLOCKED_PACKAGES, new HashSet<>());
             
             // Carrega a lista salva e salva no cache local 'localBlockedPackages'
             this.localBlockedPackages = prefs.getStringSet(KEY_BLOCKED_PACKAGES, new HashSet<String>());
@@ -89,5 +134,15 @@ public class AppBlockerService extends AccessibilityService{
             Log.e(TAG, "Erro ao carregar SharedPreferences: " + e.getMessage());
             this.localBlockedPackages = new HashSet<>(); // Usa uma lista vazia em caso de erro
         }
+    }
+
+    @Override
+    public boolean onUnbind(android.content.Intent intent) {
+        // Boa prática: remover o listener quando o serviço for destruído
+        if (prefsListener != null) {
+            getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .unregisterOnSharedPreferenceChangeListener(prefsListener);
+        }
+        return super.onUnbind(intent);
     }
 }
